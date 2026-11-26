@@ -1,6 +1,12 @@
-﻿node_modules/
+# Front-end (React Native / Expo)
+node_modules/
+frontend/node_modules/
 .expo/
+frontend/.expo/
 dist/
+frontend/dist/
+web-build/
+frontend/web-build/
 npm-debug.*
 *.jks
 *.p8
@@ -8,4 +14,10 @@ npm-debug.*
 *.key
 *.mobileprovision
 *.orig.*
-web-build/
+
+# Back-end (Java / Spring Boot / Maven)
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.idea/
+backend/*.iml
+backend/.vscode/
