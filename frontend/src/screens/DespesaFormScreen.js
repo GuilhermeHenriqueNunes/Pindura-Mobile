@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
-  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -14,6 +13,7 @@ import {
 import colors from '../styles/colors';
 import despesasService from '../services/despesasService';
 import moradoresService from '../services/moradoresService';
+import Alert from '../utils/alert';
 
 export default function DespesaFormScreen({ navigation, route }) {
   const despesaEdicao = route.params?.despesa;
@@ -86,6 +86,8 @@ export default function DespesaFormScreen({ navigation, route }) {
       : null;
 
   const handleSalvar = async () => {
+    if (salvando) return;
+
     if (!titulo || !titulo.trim()) {
       setErroValidacao('O título da despesa é obrigatório.');
       return;

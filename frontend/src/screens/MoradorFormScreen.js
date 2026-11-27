@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
-  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 import colors from '../styles/colors';
 import moradoresService from '../services/moradoresService';
+import Alert from '../utils/alert';
 
 export default function MoradorFormScreen({ navigation, route }) {
   const moradorEdicao = route.params?.morador;
@@ -24,6 +24,8 @@ export default function MoradorFormScreen({ navigation, route }) {
   const [erroValidacao, setErroValidacao] = useState('');
 
   const handleSalvar = async () => {
+    if (salvando) return;
+
     // Validação de campo obrigatório conforme especificado no escopo
     if (!nome || !nome.trim()) {
       setErroValidacao('O nome do morador é obrigatório.');

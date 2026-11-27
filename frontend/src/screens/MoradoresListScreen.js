@@ -6,13 +6,13 @@ import {
   FlatList,
   Pressable,
   ActivityIndicator,
-  Alert,
   RefreshControl,
   StyleSheet,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import colors from '../styles/colors';
 import moradoresService from '../services/moradoresService';
+import Alert from '../utils/alert';
 
 export default function MoradoresListScreen({ navigation }) {
   const [moradores, setMoradores] = useState([]);

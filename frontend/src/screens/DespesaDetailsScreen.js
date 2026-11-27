@@ -5,12 +5,12 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
-  Alert,
   StyleSheet,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import colors from '../styles/colors';
 import despesasService from '../services/despesasService';
+import Alert from '../utils/alert';
 
 export default function DespesaDetailsScreen({ navigation, route }) {
   const { id } = route.params || {};
@@ -56,6 +56,9 @@ export default function DespesaDetailsScreen({ navigation, route }) {
 
   const handleCopiarPix = (chave) => {
     if (!chave) return;
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(chave).catch(() => {});
+    }
     Alert.alert(
       'Chave Pix Pronta para Envio',
       `Chave de pagamento:\n\n${chave}\n\nCopie os dados acima para realizar a transferência no seu banco.`,
