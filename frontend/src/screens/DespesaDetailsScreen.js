@@ -17,7 +17,6 @@ export default function DespesaDetailsScreen({ navigation, route }) {
   const [detalhes, setDetalhes] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
-  const [pixCopiado, setPixCopiado] = useState(false);
 
   const carregarDetalhes = useCallback(async () => {
     if (!id) return;
@@ -57,7 +56,6 @@ export default function DespesaDetailsScreen({ navigation, route }) {
 
   const handleCopiarPix = (chave) => {
     if (!chave) return;
-    setPixCopiado(true);
     Alert.alert(
       'Chave Pix Pronta para Envio',
       `Chave de pagamento:\n\n${chave}\n\nCopie os dados acima para realizar a transferência no seu banco.`,
@@ -68,7 +66,7 @@ export default function DespesaDetailsScreen({ navigation, route }) {
   const confirmarExclusao = () => {
     Alert.alert(
       'Excluir Despesa',
-      `Tem certeza que deseja excluir esta despesa?`,
+      'Tem certeza que deseja excluir esta despesa?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -77,7 +75,7 @@ export default function DespesaDetailsScreen({ navigation, route }) {
           onPress: async () => {
             try {
               await despesasService.excluir(id);
-              Alert.alert('Sucesso', 'Despesa excluída.', [
+              Alert.alert('Sucesso', 'Despesa excluída com sucesso.', [
                 { text: 'OK', onPress: () => navigation.goBack() },
               ]);
             } catch (err) {
@@ -112,7 +110,17 @@ export default function DespesaDetailsScreen({ navigation, route }) {
 
   const pagador = detalhes.pagador || {};
   const participantes = detalhes.participantes || [];
-  const saldos = detalhes.saldosParticipantes || [];
+  const saldos = detalhes.saldos || detalhes.saldosParticipantes || [];
+
+  // Cálculo seguro do rateio por participante (DTO ou divisão direta)
+  const totalParticipantes = participantes.length || detalhes.totalParticipantes || 1;
+  const valorTotal = Number(detalhes.valor || 0);
+  const valorRateio =
+    detalhes.valorPorParticipante != null
+      ? Number(detalhes.valorPorParticipante)
+      : totalParticipantes > 0
+      ? valorTotal / totalParticipantes
+      : 0;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -121,7 +129,7 @@ export default function DespesaDetailsScreen({ navigation, route }) {
         <Text style={styles.dataCabecalho}>{formatarData(detalhes.data)}</Text>
         <Text style={styles.tituloDestaque}>{detalhes.titulo}</Text>
         <Text style={styles.valorTotalDestaque}>
-          {formatarMoeda(detalhes.valor)}
+          {formatarMoeda(valorTotal)}
         </Text>
         {detalhes.descricao ? (
           <Text style={styles.descricaoDestaque}>{detalhes.descricao}</Text>
@@ -133,13 +141,13 @@ export default function DespesaDetailsScreen({ navigation, route }) {
         <Text style={styles.secaoTitulo}>Rateio Igualitário</Text>
         <View style={styles.rateioInfoLinha}>
           <Text style={styles.rateioValor}>
-            {formatarMoeda(detalhes.valorPorPessoa)}
+            {formatarMoeda(valorRateio)}
           </Text>
           <Text style={styles.rateioSubtexto}>por participante</Text>
         </View>
         <Text style={styles.rateioDetalhe}>
-          Dividido entre {detalhes.totalParticipantes || participantes.length}{' '}
-          {detalhes.totalParticipantes === 1 ? 'morador' : 'moradores'}
+          Dividido entre {totalParticipantes}{' '}
+          {totalParticipantes === 1 ? 'morador' : 'moradores'}
         </Text>
       </View>
 
@@ -180,15 +188,16 @@ export default function DespesaDetailsScreen({ navigation, route }) {
         ) : null}
       </View>
 
-      {/* Card da Lista de Participantes */}
+      {/* Card da Lista de Participantes com Badges */}
       <View style={styles.card}>
         <Text style={styles.secaoTitulo}>
-          Participantes ({participantes.length})
+          Participantes ({totalParticipantes})
         </Text>
         <View style={styles.participantesLista}>
           {participantes.map((p, idx) => {
+            const isPagador = pagador.id != null && p.id === pagador.id;
             const saldoItem = saldos.find((s) => s.moradorId === p.id);
-            const valorDevido = saldoItem ? saldoItem.valorDevido : detalhes.valorPorPessoa;
+            const valorDevido = saldoItem != null ? saldoItem.valorDevido : valorRateio;
 
             return (
               <View
@@ -199,10 +208,35 @@ export default function DespesaDetailsScreen({ navigation, route }) {
                 ]}
               >
                 <View style={styles.participanteNomeBloco}>
-                  <Text style={styles.checkIcon}>✓</Text>
-                  <Text style={styles.participanteNome}>{p.nome}</Text>
+                  <Text style={[styles.checkIcon, isPagador && styles.checkIconPagador]}>
+                    {isPagador ? '★' : '✓'}
+                  </Text>
+                  <View>
+                    <Text style={styles.participanteNome}>{p.nome}</Text>
+                    <View
+                      style={[
+                        styles.badgeStatus,
+                        isPagador ? styles.badgePagou : styles.badgeAPagar,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.badgeStatusTexto,
+                          isPagador ? styles.badgePagouTexto : styles.badgeAPagarTexto,
+                        ]}
+                      >
+                        {isPagador ? 'Pagou a conta' : 'A pagar'}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-                <Text style={styles.participanteValor}>
+
+                <Text
+                  style={[
+                    styles.participanteValor,
+                    isPagador && styles.participanteValorPagador,
+                  ]}
+                >
                   {formatarMoeda(valorDevido)}
                 </Text>
               </View>
@@ -418,15 +452,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  checkIconPagador: {
+    color: colors.primary,
+  },
   participanteNome: {
     fontSize: 14,
     color: colors.ink,
     fontWeight: '600',
   },
+  badgeStatus: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginTop: 2,
+  },
+  badgePagou: {
+    backgroundColor: colors.successSoft,
+  },
+  badgePagouTexto: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.success,
+  },
+  badgeAPagar: {
+    backgroundColor: colors.primarySoft,
+  },
+  badgeAPagarTexto: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primaryDark,
+  },
   participanteValor: {
     fontSize: 14,
     color: colors.ink,
     fontWeight: '700',
+  },
+  participanteValorPagador: {
+    color: colors.success,
   },
   acoesContainer: {
     flexDirection: 'row',

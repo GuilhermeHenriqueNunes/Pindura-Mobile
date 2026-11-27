@@ -2,11 +2,11 @@
  * Configuração central da API REST do Pindura.
  *
  * NOTA PARA APRESENTAÇÃO:
- * - Em emulador Android, utilize: 'http://10.0.2.2:8080/api'
- * - Em celular físico via Expo Go, utilize o IP do seu computador na rede Wi-Fi:
- *   Exemplo: 'http://192.168.1.15:8080/api' (consulte com 'ipconfig' no terminal).
+ * - No seu celular físico via Expo Go (conectado no mesmo Wi-Fi):
+ *   Seu IP atual detectado é: 'http://192.168.0.7:8080/api'
+ * - Em emulador Android oficial: utilize 'http://10.0.2.2:8080/api'
  */
-export const API_BASE_URL = 'http://10.0.2.2:8080/api';
+export const API_BASE_URL = 'http://192.168.0.7:8080/api';
 
 /**
  * Função utilitária para executar requisições HTTP com timeout e tratamento de erros amigável.

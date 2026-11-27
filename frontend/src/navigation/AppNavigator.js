@@ -3,6 +3,7 @@ import { Text, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import colors from '../styles/colors';
 import HomeScreen from '../screens/HomeScreen';
@@ -91,6 +92,10 @@ function DespesasStackNavigator() {
 }
 
 export default function AppNavigator() {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = insets.bottom > 0 ? insets.bottom + 4 : 8;
+  const barHeight = 54 + bottomPadding;
+
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -102,8 +107,8 @@ export default function AppNavigator() {
             backgroundColor: colors.surface,
             borderTopColor: colors.border,
             borderTopWidth: 1,
-            height: 60,
-            paddingBottom: 8,
+            height: barHeight,
+            paddingBottom: bottomPadding,
             paddingTop: 6,
           },
           tabBarLabelStyle: {

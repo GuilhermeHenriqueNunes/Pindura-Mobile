@@ -250,8 +250,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   mascote: {
-    width: 65,
-    height: 80,
+    width: 60,
+    height: 74,
     marginRight: 14,
   },
   brandInfo: {
