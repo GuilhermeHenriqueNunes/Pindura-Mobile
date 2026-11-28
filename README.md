@@ -151,7 +151,4 @@ Projeto desenvolvido em colaboração por:
 </table>
 
 ---
-
-## 📄 Licença
-
-Este projeto é desenvolvido para fins acadêmicos e open-source sob a licença [MIT](LICENSE).
+Este projeto é desenvolvido para fins acadêmicos.
